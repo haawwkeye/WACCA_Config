@@ -66,16 +66,7 @@ namespace WACCA_Config
 
         public static uint? GetDisplayNumberFromScreen(Screen screen)
         {
-            uint? sceenId = null;
-            //for (int i = 0; i < Screen.AllScreens.Length; i++)
-            //{
-            //    if (!Equals(screen, Screen.AllScreens[i]))
-            //        continue;
-            //    sceenId = (uint)i;
-            //    break;
-            //}
-
-            sceenId = uint.Parse(screen.DeviceName.Split("DISPLAY")[1]);
+            uint? sceenId = uint.Parse(screen.DeviceName.Split("DISPLAY")[1]);
 
             Debug.WriteLine(screen.DeviceName);
 
