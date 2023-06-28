@@ -73,6 +73,14 @@ namespace WACCA_Config
         }
         #endregion
 
+        #region ConfigUI Handler
+        public static void ServerIPChanged(string ip)
+        {
+            if (string.IsNullOrEmpty(ip)) { ServerIP = ip; return; }
+            // TODO: IP Vaildation
+        }
+        #endregion
+
         #region File Handler
         public static IniDocument ReadINIFile(string filePath)
         {

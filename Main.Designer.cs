@@ -32,6 +32,9 @@ namespace WACCA_Config
         {
             Start = new Button();
             SelectPath = new Button();
+            ServerIP = new TextBox();
+            ServerIPLabel = new Label();
+            SelectPathLabel = new Label();
             SuspendLayout();
             // 
             // Start
@@ -58,12 +61,47 @@ namespace WACCA_Config
             SelectPath.UseVisualStyleBackColor = false;
             SelectPath.Click += SelectPath_Click;
             // 
+            // ServerIP
+            // 
+            ServerIP.BackColor = SystemColors.ControlDarkDark;
+            ServerIP.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point);
+            ServerIP.ForeColor = SystemColors.ControlLightLight;
+            ServerIP.Location = new Point(182, 49);
+            ServerIP.Name = "ServerIP";
+            ServerIP.Size = new Size(172, 25);
+            ServerIP.TabIndex = 2;
+            ServerIP.TextChanged += ServerIP_TextChanged;
+            // 
+            // ServerIPLabel
+            // 
+            ServerIPLabel.BackColor = Color.Gray;
+            ServerIPLabel.Font = new Font("Segoe UI", 10F, FontStyle.Bold, GraphicsUnit.Point);
+            ServerIPLabel.Location = new Point(104, 49);
+            ServerIPLabel.Name = "ServerIPLabel";
+            ServerIPLabel.Size = new Size(72, 25);
+            ServerIPLabel.TabIndex = 3;
+            ServerIPLabel.Text = "ServerIP:";
+            // 
+            // SelectPathLabel
+            // 
+            SelectPathLabel.BackColor = Color.FromArgb(155, 105, 105, 105);
+            SelectPathLabel.Font = new Font("Segoe UI", 25F, FontStyle.Bold, GraphicsUnit.Point);
+            SelectPathLabel.Location = new Point(12, 1000);
+            SelectPathLabel.Name = "SelectPathLabel";
+            SelectPathLabel.Size = new Size(495, 310);
+            SelectPathLabel.TabIndex = 4;
+            SelectPathLabel.Text = "Please select the path to WACCA before doing anything!";
+            SelectPathLabel.TextAlign = ContentAlignment.MiddleCenter;
+            // 
             // Main
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = SystemColors.ControlDarkDark;
+            BackColor = Color.Gray;
             ClientSize = new Size(519, 361);
+            Controls.Add(SelectPathLabel);
+            Controls.Add(ServerIPLabel);
+            Controls.Add(ServerIP);
             Controls.Add(SelectPath);
             Controls.Add(Start);
             ForeColor = SystemColors.ControlLightLight;
@@ -75,11 +113,15 @@ namespace WACCA_Config
             StartPosition = FormStartPosition.CenterScreen;
             Text = "WACCA Config";
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
         private Button Start;
         private Button SelectPath;
+        private TextBox ServerIP;
+        private Label ServerIPLabel;
+        private Label SelectPathLabel;
     }
 }
