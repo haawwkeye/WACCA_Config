@@ -6,10 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CodeAnalysis = System.Diagnostics.CodeAnalysis;
-// The Funny
+// ScreenRotation stuff
 using static WACCA_Config.ScreenRotation;
 using Orientation = WACCA_Config.ScreenRotation.Orientation;
-using System.Xml.Linq;
 
 namespace WACCA_Config
 {
@@ -19,9 +18,7 @@ namespace WACCA_Config
         internal static Process? WACVR;
         internal static Process? WACCA;
 
-        [CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "<Pending>")]
-        public static uint uDisplay = 1; // The display that WACCA is on
-        //public static LaunchHandler Instance { get; private set; }
+        private static uint? uDisplay; // The display that WACCA is on
 
         public static void StartWACVR()
         {
@@ -35,7 +32,7 @@ namespace WACCA_Config
                 WorkingDirectory = WACVRDir
             };
 
-            Rotate(uDisplay, (Orientation)OrientationLang.Portrait);
+            //Rotate(uDisplay, (Orientation)OrientationLang.Portrait);
             HandleMercury();
 
             WACVR = Process.Start(startInfo);
@@ -46,14 +43,15 @@ namespace WACCA_Config
                 WACVR?.WaitForExit(-1);
                 WACVR = null;
                 WACCA?.Kill(true);
-                Rotate(uDisplay, (Orientation)OrientationLang.Landscape);
+                if (uDisplay != null) Rotate((uint)uDisplay, (Orientation)OrientationLang.Landscape);
+                uDisplay = null; // uDisplay is no longer needed since we will get it next time it starts
             });
         }
 
         public static void OnMercuryDeath()
         {
-            WACCA = null; // Process killed
-            // TODO: Attempt restart
+            // TODO: Add error detection based on if WACCA closed due to fatal error (if this is possible)
+            WACCA = null; // Process killed (and we don't need this for now)
             if (WACVR == null) return; // WACVR Closed so don't attempt restart
             string WACCA_bin = WACCA_Handler.GetPath("%WACCA.bin%");
             ProcessStartInfo startInfo = new()
@@ -66,12 +64,39 @@ namespace WACCA_Config
             Process.Start(startInfo); // Start WACCA again
         }
 
+        public static uint? GetDisplayNumberFromScreen(Screen screen)
+        {
+            uint? sceenId = null;
+            //for (int i = 0; i < Screen.AllScreens.Length; i++)
+            //{
+            //    if (!Equals(screen, Screen.AllScreens[i]))
+            //        continue;
+            //    sceenId = (uint)i;
+            //    break;
+            //}
+
+            sceenId = uint.Parse(screen.DeviceName.Split("DISPLAY")[1]);
+
+            Debug.WriteLine(screen.DeviceName);
+
+            return sceenId;
+        }
+
         public static void HandleMercury()
         {
+            // Start a new task
             Task.Factory.StartNew(async () =>
             {
+                // Wait for WACCA to start
                 WACCA = await WaitForMercury();
+                // Set the Display to the one WACCA is using
+                uDisplay = GetDisplayNumberFromScreen(Screen.FromHandle(WACCA.MainWindowHandle)); // This should be the uDisplay
+                Debug.WriteLine(uDisplay); // DEBUG
+                // TODO: Fullscreen just incase (idk how to do this currently but it should be possible)
+                // Rotate to Portrait since you HAVE to play in Portrait
+                if (uDisplay != null) Rotate((uint)uDisplay, (Orientation)OrientationLang.Portrait);
                 Debug.WriteLine(WACCA.Id);
+                // Wait for exit so we can fast restart (might make this a setting instead)
                 WACCA.WaitForExit(-1);
                 Debug.WriteLine("WACCA Died!");
                 OnMercuryDeath();
@@ -80,15 +105,16 @@ namespace WACCA_Config
 
         public static Task<Process> WaitForMercury()
         {
+            // Start a new task
             return Task.Factory.StartNew(() =>
             {
                 Debug.WriteLine("Waiting for Mercury...");
 
+                // Repeat this line until you get processes with this name
                 while (Process.GetProcessesByName("Mercury-Win64-Shipping").Length == 0) { Thread.Sleep(100); }
 
-                Process process = Process.GetProcessesByName("Mercury-Win64-Shipping")[0]; // Get the first one
-
-                return process;
+                // Define the first one as the process
+                return Process.GetProcessesByName("Mercury-Win64-Shipping")[0]; ;
             });
         }
     }
