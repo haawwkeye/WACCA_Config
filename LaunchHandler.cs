@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,16 @@ namespace WACCA_Config
 {
     public class LaunchHandler
     {
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int CX, int CY, int uFlags);
+        [DllImport("user32.dll")]
+        internal static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
+        [DllImport("user32.dll")]
+        internal static extern int GetWindowLong(IntPtr hWnd, int nIndex);
+
+
         // Processes
         internal static Process? WACVR;
         internal static Process? WACCA;
@@ -83,14 +94,26 @@ namespace WACCA_Config
                 // Set the Display to the one WACCA is using
                 uDisplay = GetDisplayNumberFromScreen(Screen.FromHandle(WACCA.MainWindowHandle)); // This should be the uDisplay
                 Debug.WriteLine(uDisplay); // DEBUG
+                // TODO: Add options to switch between the two methods plus options to config the methods
+                // Non fullscreen method
+                Thread.Sleep(10000); // Wait 10 seconds before running this
+                MoveWindow(WACCA.MainWindowHandle, 0, 0, 540, 960, true);
+
+                int style = GetWindowLong(WACCA.MainWindowHandle, -16);
+                SetWindowLong(WACCA.MainWindowHandle, -16, style & ~(0x00800000 | 0x00400000 | 0x00040000));
+                int exstyle = GetWindowLong(WACCA.MainWindowHandle, -20);
+                SetWindowLong(WACCA.MainWindowHandle, -20, exstyle & ~(0x00000001 | 0x00000200 | 0x00020000));
+                SetWindowPos(WACCA.MainWindowHandle, IntPtr.Zero, 0, 0, 0, 0, 0x0020 | 0x0002 | 0x0001 | 0x0004 | 0x0200);
+
+                // fullscreen method
                 // TODO: Fullscreen just incase (idk how to do this currently but it should be possible)
                 // Rotate to Portrait since you HAVE to play in Portrait
-                if (uDisplay != null) Rotate((uint)uDisplay, (Orientation)OrientationLang.Portrait);
+                //if (uDisplay != null) Rotate((uint)uDisplay, (Orientation)OrientationLang.Portrait);
                 Debug.WriteLine(WACCA.Id);
                 // Wait for exit so we can fast restart (might make this a setting instead)
                 WACCA.WaitForExit(-1);
                 Debug.WriteLine("WACCA Died!");
-                OnMercuryDeath();
+                //OnMercuryDeath();
             });
         }
 
