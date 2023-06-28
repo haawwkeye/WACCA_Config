@@ -6,9 +6,14 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using WACCA_Config.Properties;
-
+// API
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Yuu.Ini;
+// UAssetAPI
+using UAssetAPI;
+using UAssetAPI.ExportTypes;
+using UAssetAPI.UnrealTypes;
+using UAssetAPI.PropertyTypes.Structs;
 
 namespace WACCA_Config
 {
@@ -19,6 +24,9 @@ namespace WACCA_Config
         {
             IsFolderPicker = true
         };
+
+        // WACCA Version
+        private static readonly EngineVersion UnrealVersion = EngineVersion.VER_UE4_19;
 
         #region Settings
         public static string WACCAPath
@@ -106,5 +114,10 @@ namespace WACCA_Config
             return (reply != null) && (reply.Status == IPStatus.Success);
         }
         #endregion
+    }
+
+    public class WACCASong
+    {
+        // TODO: Start work on adding support for the SongTable
     }
 }
