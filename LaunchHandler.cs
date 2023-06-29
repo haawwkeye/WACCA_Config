@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using WACCA_Config.Properties;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.IO;
@@ -24,6 +25,7 @@ namespace WACCA_Config
         [DllImport("user32.dll")]
         internal static extern int GetWindowLong(IntPtr hWnd, int nIndex);
 
+        //internal static event EventHandler? injectedEventHandler;
 
         // Processes
         internal static Process? WACVR;
@@ -91,31 +93,66 @@ namespace WACCA_Config
             {
                 // Wait for WACCA to start
                 WACCA = await WaitForMercury();
+                //Process injected = await WaitForInject();
+
+                //injected.OutputDataReceived += Injected_OutputDataReceived;
+                //injectedEventHandler.
+
+                //WACCA.BeginOutputReadLine();
+                //Debug.WriteLine(WACCA.StandardOutput.ReadToEnd());
+
+                //StreamReader outputStream = WACCA.StandardOutput;
                 // Set the Display to the one WACCA is using
                 uDisplay = GetDisplayNumberFromScreen(Screen.FromHandle(WACCA.MainWindowHandle)); // This should be the uDisplay
                 Debug.WriteLine(uDisplay); // DEBUG
                 // TODO: Add options to switch between the two methods plus options to config the methods
-                // Non fullscreen method
-                Thread.Sleep(10000); // Wait 10 seconds before running this
-                MoveWindow(WACCA.MainWindowHandle, 0, 0, 540, 960, true);
+                if (Settings.Default.FullscreenMode)
+                {
+                    // fullscreen method
+                    // TODO: Fullscreen just incase (idk how to do this currently but it should be possible)
+                    // Rotate to Portrait since you HAVE to play in Portrait
+                    if (uDisplay != null) Rotate((uint)uDisplay, (Orientation)OrientationLang.Portrait);
+                } else {
+                    // Non fullscreen method
+                    //outputStream.
+                    Thread.Sleep(10000); // Wait 10 seconds before running this
+                    MoveWindow(WACCA.MainWindowHandle, 0, 0, 540, 960, true);
 
-                int style = GetWindowLong(WACCA.MainWindowHandle, -16);
-                SetWindowLong(WACCA.MainWindowHandle, -16, style & ~(0x00800000 | 0x00400000 | 0x00040000));
-                int exstyle = GetWindowLong(WACCA.MainWindowHandle, -20);
-                SetWindowLong(WACCA.MainWindowHandle, -20, exstyle & ~(0x00000001 | 0x00000200 | 0x00020000));
-                SetWindowPos(WACCA.MainWindowHandle, IntPtr.Zero, 0, 0, 0, 0, 0x0020 | 0x0002 | 0x0001 | 0x0004 | 0x0200);
-
-                // fullscreen method
-                // TODO: Fullscreen just incase (idk how to do this currently but it should be possible)
-                // Rotate to Portrait since you HAVE to play in Portrait
-                //if (uDisplay != null) Rotate((uint)uDisplay, (Orientation)OrientationLang.Portrait);
+                    int style = GetWindowLong(WACCA.MainWindowHandle, -16);
+                    SetWindowLong(WACCA.MainWindowHandle, -16, style & ~(0x00800000 | 0x00400000 | 0x00040000));
+                    int exstyle = GetWindowLong(WACCA.MainWindowHandle, -20);
+                    SetWindowLong(WACCA.MainWindowHandle, -20, exstyle & ~(0x00000001 | 0x00000200 | 0x00020000));
+                    SetWindowPos(WACCA.MainWindowHandle, IntPtr.Zero, 0, 0, 0, 0, 0x0020 | 0x0002 | 0x0001 | 0x0004 | 0x0200);
+                }
+                
                 Debug.WriteLine(WACCA.Id);
                 // Wait for exit so we can fast restart (might make this a setting instead)
                 WACCA.WaitForExit(-1);
                 Debug.WriteLine("WACCA Died!");
-                //OnMercuryDeath();
+                OnMercuryDeath();
             });
         }
+
+        //private static void Injected_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        //{
+        //    injectedEventHandler(sender, e);
+        //}
+
+        //public static Task<Process> WaitForInject()
+        //{
+        //    // Start a new task
+        //    return Task.Factory.StartNew(() =>
+        //    {
+        //        Debug.WriteLine("Waiting for inject...");
+
+        //        // Repeat this line until you get processes with this name
+        //        while (Process.GetProcessesByName("inject").Length != 2) { Thread.Sleep(100); }
+        //        Process[] list = Process.GetProcessesByName("inject");
+
+        //        if (list[0].StartTime > list[1].StartTime) return list[0];
+        //        return list[1];
+        //    });
+        //}
 
         public static Task<Process> WaitForMercury()
         {

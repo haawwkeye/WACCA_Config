@@ -70,5 +70,17 @@ namespace WACCA_Config.Properties {
                 this["WACCAPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool FullscreenMode {
+            get {
+                return ((bool)(this["FullscreenMode"]));
+            }
+            set {
+                this["FullscreenMode"] = value;
+            }
+        }
     }
 }
