@@ -119,9 +119,9 @@ namespace WACCA_Config
                     MoveWindow(WACCA.MainWindowHandle, 0, 0, 540, 960, true);
 
                     int style = GetWindowLong(WACCA.MainWindowHandle, -16);
-                    SetWindowLong(WACCA.MainWindowHandle, -16, style & ~(0x00800000 | 0x00400000 | 0x00040000));
+                    _=SetWindowLong(WACCA.MainWindowHandle, -16, style & ~(0x00800000 | 0x00400000 | 0x00040000));
                     int exstyle = GetWindowLong(WACCA.MainWindowHandle, -20);
-                    SetWindowLong(WACCA.MainWindowHandle, -20, exstyle & ~(0x00000001 | 0x00000200 | 0x00020000));
+                    _=SetWindowLong(WACCA.MainWindowHandle, -20, exstyle & ~(0x00000001 | 0x00000200 | 0x00020000));
                     SetWindowPos(WACCA.MainWindowHandle, IntPtr.Zero, 0, 0, 0, 0, 0x0020 | 0x0002 | 0x0001 | 0x0004 | 0x0200);
                 }
                 
@@ -135,7 +135,8 @@ namespace WACCA_Config
 
         //private static void Injected_OutputDataReceived(object sender, DataReceivedEventArgs e)
         //{
-        //    injectedEventHandler(sender, e);
+        //    Debug.WriteLine($"Event Fired!\n Data: {e.Data}");
+        //    //injectedEventHandler(sender, e);
         //}
 
         //public static Task<Process> WaitForInject()
