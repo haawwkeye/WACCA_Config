@@ -2,12 +2,23 @@ namespace WACCA_Config
 {
     public partial class Main : Form
     {
+        public static Main Instance { get; private set; } = new();
+        public static bool IsVisible { get; private set; } = true;
+
         public Main()
         {
             InitializeComponent();
 
             if (WACCA_Handler.WACCAPath.Length == 0) SelectPathLabel.Location = new Point(12, 49);
             ServerIP.Text = WACCA_Handler.ServerIP;
+        }
+
+        public void ToggleUI(bool? Visible = null)
+        {
+            if (Visible == null) IsVisible = !IsVisible;
+            else IsVisible = (bool)Visible;
+
+            this.Visible = IsVisible;
         }
 
         private void Start_Click(object sender, EventArgs e)

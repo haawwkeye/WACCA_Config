@@ -37,6 +37,7 @@ namespace WACCA_Config
         {
             string path = WACCA_Handler.GetPath("%WACVR%");
             if (!Directory.Exists(Path.Combine(path, "WACVR"))) return; // Not using WACVR
+            Main.Instance.ToggleUI(false);
             string WACVRDir = Path.Combine(path, "WACVR");
             ProcessStartInfo startInfo = new()
             {
@@ -50,15 +51,12 @@ namespace WACCA_Config
 
             WACVR = Process.Start(startInfo);
 
-            Task.Factory.StartNew(() =>
-            {
-                // TODO: Hide Form
-                WACVR?.WaitForExit(-1);
-                WACVR = null;
-                WACCA?.Kill(true);
-                if (uDisplay != null) Rotate((uint)uDisplay, (Orientation)OrientationLang.Landscape);
-                uDisplay = null; // uDisplay is no longer needed since we will get it next time it starts
-            });
+            WACVR?.WaitForExit(-1);
+            WACVR = null;
+            WACCA?.Kill(true);
+            if (uDisplay != null) Rotate((uint)uDisplay, (Orientation)OrientationLang.Landscape);
+            uDisplay = null; // uDisplay is no longer needed since we will get it next time it starts
+            Main.Instance.ToggleUI(true);
         }
 
         public static void OnMercuryDeath()
@@ -66,15 +64,17 @@ namespace WACCA_Config
             // TODO: Add error detection based on if WACCA closed due to fatal error (if this is possible)
             WACCA = null; // Process killed (and we don't need this for now)
             if (WACVR == null) return; // WACVR Closed so don't attempt restart
-            string WACCA_bin = WACCA_Handler.GetPath("%WACCA.bin%");
-            ProcessStartInfo startInfo = new()
-            {
-                WindowStyle = ProcessWindowStyle.Normal,
-                FileName = Path.Combine(WACCA_bin, "start.bat"),
-                WorkingDirectory = WACCA_bin
-            };
-            HandleMercury(); // Start waiting for Mercury again
-            Process.Start(startInfo); // Start WACCA again
+            // TODO: Make restart/kill thing an option
+            WACVR?.Close(); // Kill WACCA!
+            //string WACCA_bin = WACCA_Handler.GetPath("%WACCA.bin%");
+            //ProcessStartInfo startInfo = new()
+            //{
+            //    WindowStyle = ProcessWindowStyle.Normal,
+            //    FileName = Path.Combine(WACCA_bin, "start.bat"),
+            //    WorkingDirectory = WACCA_bin
+            //};
+            //HandleMercury(); // Start waiting for Mercury again
+            //Process.Start(startInfo); // Start WACCA again
         }
 
         public static uint? GetDisplayNumberFromScreen(Screen screen)
